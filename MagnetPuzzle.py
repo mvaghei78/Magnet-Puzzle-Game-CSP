@@ -43,6 +43,28 @@ class MagnetPuzzle:
             if pairs in self.all_pairs and (pairs[1], pairs[0]) in self.all_pairs:
                 self.all_pairs.remove((pairs[1], pairs[0]))
         return self.all_pairs
+
+    def is_empty_domain(self, assignment):
+        for x in assignment:
+            for domain in x:
+                if len(domain) == 0:
+                    return True
+        return False
+
+    def csp(self, row_index, col_index):
+        csp_list = list()
+        pair = self.get_pair(row_index, col_index)
+        first_pair_neighbors = self.get_neighbors(row_index, col_index)
+        second_pair_neighbors = self.get_neighbors(pair[0], pair[1])
+        first_pair_neighbors.remove([pair[0], pair[1]])
+        second_pair_neighbors.remove([row_index, col_index])
+        for n in first_pair_neighbors:
+            csp_list.append(([row_index, col_index], n))
+        for n in second_pair_neighbors:
+            csp_list.append(([pair[0], pair[1]], n))
+        return csp_list
+
+
     # input:
     # table , table, row_index, column_index
     # new_value: new value for selected piece
