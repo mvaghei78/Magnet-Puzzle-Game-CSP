@@ -30,14 +30,12 @@ class Backtrack:
 
     # backtracking algorithm
     def solve(self, table, assignment, use_forwardcheck):
-        self.x += 1
-        print(self.x)
         if self.magnet_puzzle.is_goal(table):
             return True, table
         row, col = self.heuristics.mrv_heuristic(table, assignment)
         if row != None:
             pair = self.magnet_puzzle.get_pair(row, col)
-            ordered_domain = self.heuristics.lcv_heuristic(assignment, row, col)
+            ordered_domain = self.heuristics.lcv_heuristic(table, assignment, row, col)
             # for num in [1, -1, 0]:
             for num in ordered_domain:
                 copy_table = copy.deepcopy(table)

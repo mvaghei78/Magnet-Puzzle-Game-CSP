@@ -17,26 +17,47 @@ class Heuristics:
                     mrv_row = y
         return mrv_row, mrv_col
 
-    def lcv_heuristic(self, assignment, row_index, column_index):
+    def lcv_heuristic(self, table, assignment, row_index, column_index):
+        score_of_pos = 0
+        score_of_neg = 0
         ordered_domain = [0]
         pair = self.magnet_puzzle.get_pair(row_index, column_index)
         neighbors = self.magnet_puzzle.get_neighbors(row_index, column_index)
         pair_neighbors = self.magnet_puzzle.get_neighbors(pair[0], pair[1])
+        neighbors.remove([pair[0], pair[1]])
+        pair_neighbors.remove([row_index, column_index])
         count_1 = 0
         count_minus_1 = 0
         for n in neighbors:
-            if not (n[0] == pair[0] and n[1] == pair[1]):
-                if 1 in assignment[n[0]][n[1]]:
-                    count_1 += 1
-                if -1 in assignment[n[0]][n[1]]:
-                    count_minus_1 += 1
+            if 1 in assignment[n[0]][n[1]]:
+                count_1 += 1
+            if -1 in assignment[n[0]][n[1]]:
+                count_minus_1 += 1
         for n in pair_neighbors:
-            if not (n[0] == row_index and n[1] == column_index):
-                if -1 in assignment[n[0]][n[1]]:
-                    count_1 += 1
-                if 1 in assignment[n[0]][n[1]]:
-                    count_minus_1 += 1
-        if count_1 <= count_minus_1:
+            if -1 in assignment[n[0]][n[1]]:
+                count_1 += 1
+            if 1 in assignment[n[0]][n[1]]:
+                count_minus_1 += 1
+        if count_1 < count_minus_1:
+            score_of_pos += 1
+        elif count_1 > count_minus_1:
+            score_of_neg += 1
+        num_of_pos_in_row, number_of_neg_in_row\
+            , num_of_pos_in_column, number_of_neg_in_column = self.magnet_puzzle.count_of_pos_neg(table, row_index, column_index)
+        score_of_pos += (self.magnet_puzzle.PositivePoleEachRow[row_index] - num_of_pos_in_row) + (
+                self.magnet_puzzle.PositivePoleEachColumn[column_index] - num_of_pos_in_column)
+        score_of_neg += (self.magnet_puzzle.NegativePoleEachRow[row_index] - number_of_neg_in_row) + (
+            self.magnet_puzzle.NegativePoleEachColumn[column_index] - number_of_neg_in_column)
+
+        num_of_pos_in_row, number_of_neg_in_row\
+            , num_of_pos_in_column, number_of_neg_in_column = self.magnet_puzzle.count_of_pos_neg(table, pair[0], pair[1])
+
+        score_of_pos += (self.magnet_puzzle.PositivePoleEachRow[row_index] - num_of_pos_in_row) + (
+                self.magnet_puzzle.PositivePoleEachColumn[column_index] - num_of_pos_in_column)
+        score_of_neg += (self.magnet_puzzle.NegativePoleEachRow[row_index] - number_of_neg_in_row) + (
+            self.magnet_puzzle.NegativePoleEachColumn[column_index] - number_of_neg_in_column)
+
+        if score_of_pos >= score_of_neg:
             ordered_domain.extend([1, -1])
         else:
             ordered_domain.extend([-1, 1])
